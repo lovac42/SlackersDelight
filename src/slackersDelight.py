@@ -85,7 +85,7 @@ class SlackersDelight:
             card.odue=card.due
             card.due=-self.timeId
             self.timeId+=1
-        card.flush()
+        card.flushSched()
 
 
 sd=SlackersDelight()
