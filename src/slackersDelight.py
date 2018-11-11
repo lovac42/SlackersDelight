@@ -2,7 +2,7 @@
 # Copyright: (C) 2018 Lovac42
 # Support: https://github.com/lovac42/SlackersDelight
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-# Version: 0.0.2
+# Version: 0.0.3
 
 
 # == User Config =========================================
@@ -147,6 +147,19 @@ odue = 0, odid = 0, usn = ? where %s""" %
 lim, self.col.usn())
 
 
+# In case user changes decks in Browser or other altercations.
+# Since the did is not given, we are checking each card one by one.
+# This should be taxing, so we are limiting it to 20 cards max.
+def sd_remFromDyn(self, cids, _old):
+    if len(cids)>20:
+        _old(self, cids)
+    else:
+        for id in cids:
+            did=mw.col.getCard(id).did
+            self.emptyDyn(did, "id = %d and odid" % id)
+
+
+
 #Prevent user from rebuilding this special deck
 def sd_rebuildDyn(self, did=None, _old=None):
     if not _old: _old=did; did=None; #swap
@@ -176,6 +189,7 @@ if ADD_DEFER_BUTTON:
 
 aqt.overview.Overview._desc = wrap(aqt.overview.Overview._desc, desc, 'around')
 anki.sched.Scheduler.emptyDyn = wrap(anki.sched.Scheduler.emptyDyn, sd_emptyDyn, 'around')
+anki.sched.Scheduler.remFromDyn = wrap(anki.sched.Scheduler.remFromDyn, sd_remFromDyn, 'around')
 anki.sched.Scheduler.rebuildDyn = wrap(anki.sched.Scheduler.rebuildDyn, sd_rebuildDyn, 'around')
 
 if ANKI21:
