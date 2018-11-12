@@ -2,7 +2,7 @@
 # Copyright: (C) 2018 Lovac42
 # Support: https://github.com/lovac42/SlackersDelight
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-# Version: 0.0.3
+# Version: 0.0.4
 
 
 # == User Config =========================================
@@ -148,16 +148,18 @@ lim, self.col.usn())
 
 
 # In case user changes decks in Browser or other altercations.
-# Since the did is not given, we are checking each card one by one.
-# This should be taxing, so we are limiting it to 20 cards max.
+# Since the Deck ID is not given, we are checking each card one by one.
+# This is a taxing process, so we are limiting it to 10 cards max.
+# If more than 10, we are using the first card only.
+# Defered decks and normal decks should not be mixed.
 def sd_remFromDyn(self, cids, _old):
-    if len(cids)>20:
-        _old(self, cids)
+    if len(cids)>10:
+        did=mw.col.getCard(cids[0]).did
+        self.emptyDyn(did, "id in %s and odid" % ids2str(cids))
     else:
         for id in cids:
             did=mw.col.getCard(id).did
             self.emptyDyn(did, "id = %d and odid" % id)
-
 
 
 #Prevent user from rebuilding this special deck
