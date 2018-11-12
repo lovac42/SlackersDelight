@@ -2,7 +2,7 @@
 # Copyright: (C) 2018 Lovac42
 # Support: https://github.com/lovac42/SlackersDelight
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-# Version: 0.0.4
+# Version: 0.0.5
 
 
 # == User Config =========================================
@@ -133,7 +133,6 @@ def linkHandler(self, url, _old):
 #This is necessary to keep the learning card status if user clicks empty.
 #Default is to change type1=0 new, type2=2 review
 def sd_emptyDyn(self, did, lim=None, _old=None):
-    if not _old: _old=lim; lim=None; #swap
     dyn = mw.col.decks.get(did)
     if dyn['name'] != DEFERRED_DECK_NAME:
         return _old(self, did, lim)
@@ -164,7 +163,6 @@ def sd_remFromDyn(self, cids, _old):
 
 #Prevent user from rebuilding this special deck
 def sd_rebuildDyn(self, did=None, _old=None):
-    if not _old: _old=did; did=None; #swap
     did = did or self.col.decks.selected()
     dyn = mw.col.decks.get(did)
     if dyn['name'] == DEFERRED_DECK_NAME:
@@ -174,21 +172,20 @@ def sd_rebuildDyn(self, did=None, _old=None):
 
 
 #Prevent user from changing deck options
-def sd_onDeckConf(self, deck=None):
+def sd_onDeckConf(self, deck=None, _old=None):
     if not deck:
         deck = self.col.decks.current()
     if deck['name'] == DEFERRED_DECK_NAME:
         showWarning("Can't modify this deck.") 
         return
-    return old_onDeckConf(self, deck)
+    return _old(self, deck)
 
-old_onDeckConf=aqt.main.AnkiQt.onDeckConf
-aqt.main.AnkiQt.onDeckConf=sd_onDeckConf
 
 if ADD_DEFER_BUTTON:
     Reviewer._initWeb = wrap(Reviewer._initWeb, initWeb, 'after')
     Reviewer._linkHandler = wrap(Reviewer._linkHandler, linkHandler, 'around')
 
+aqt.main.AnkiQt.onDeckConf = wrap(aqt.main.AnkiQt.onDeckConf, sd_onDeckConf, 'around')
 aqt.overview.Overview._desc = wrap(aqt.overview.Overview._desc, desc, 'around')
 anki.sched.Scheduler.emptyDyn = wrap(anki.sched.Scheduler.emptyDyn, sd_emptyDyn, 'around')
 anki.sched.Scheduler.remFromDyn = wrap(anki.sched.Scheduler.remFromDyn, sd_remFromDyn, 'around')
