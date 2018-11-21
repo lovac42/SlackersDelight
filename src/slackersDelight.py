@@ -2,7 +2,7 @@
 # Copyright: (C) 2018 Lovac42
 # Support: https://github.com/lovac42/SlackersDelight
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-# Version: 0.0.5
+# Version: 0.0.6
 
 
 # == User Config =========================================
@@ -24,7 +24,7 @@ from aqt import mw
 from aqt.qt import *
 from aqt.reviewer import Reviewer
 from anki.hooks import addHook, wrap
-from anki.utils import intTime
+from anki.utils import intTime, ids2str
 from aqt.utils import showWarning, showInfo, tooltip
 from anki import version
 ANKI21 = version.startswith("2.1.")
