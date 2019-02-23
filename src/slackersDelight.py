@@ -2,7 +2,7 @@
 # Copyright: (C) 2018 Lovac42
 # Support: https://github.com/lovac42/SlackersDelight
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-# Version: 0.0.6
+# Version: 0.1.0
 
 
 # == User Config =========================================
@@ -45,22 +45,28 @@ class SlackersDelight:
         self.timeId=intTime()%100000
         addHook("Reviewer.contextMenuEvent", self.showContextMenu)
 
+
     def showContextMenu(self, r, m):
-        if r.card.odid: return
         a=m.addAction("Defer")
         a.setShortcut(QKeySequence(HOTKEY))
         a.triggered.connect(self.defer)
 
+
     def defer(self):
         "main operations"
         card = mw.reviewer.card
-        if card.odid: return
         did = self.getDynId()
-        if did:
+        if did and did != card.did:
+            #Require reschedule for lrn card in filtered decks
+            if card.odid and card.queue in (1,3,4):
+                conf=mw.col.decks.confForDid(card.did)
+                if not conf['resched']: return
+
             mw.col.log(did,[card.id])
             self.swap(did, card)
             mw.reset()
             tooltip(_("Card Deferred."), period=1000)
+
 
     def getDynId(self):
         "Built or select Dyn deck"
@@ -74,17 +80,19 @@ class SlackersDelight:
             return False
         return dyn['id']
 
+
     def swap(self, dynId, card):
         "Swap card info"
-        card.odid=card.did
+        if not card.odid:
+            card.odid=card.did
+            if card.queue==1 and mw.col.sched.name != "std2":
+                #fix bad cards during db check
+                card.odue=mw.col.sched.today
+            else: #new/rev cards
+                card.odue=card.due
+                card.due=-self.timeId
+                self.timeId+=1
         card.did=dynId
-        if card.queue in (1,3) and mw.col.sched.name != "std2":
-            #fix bad cards during db check
-            card.odue=mw.col.sched.today
-        else: #new/rev cards
-            card.odue=card.due
-            card.due=-self.timeId
-            self.timeId+=1
         card.flushSched()
 
 
