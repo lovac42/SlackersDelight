@@ -2,7 +2,7 @@
 # Copyright: (C) 2018 Lovac42
 # Support: https://github.com/lovac42/SlackersDelight
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-# Version: 0.1.0
+# Version: 0.1.1
 
 
 # == User Config =========================================
@@ -125,8 +125,7 @@ def shortcutKeys(self, _old):
 #Add button on bottom bar
 def initWeb(self):
     card = mw.reviewer.card
-    conf = mw.col.decks.confForDid(card.did)
-    if conf['dyn']: return
+    if card.did==sd.getDynId(): return
     lnkcmd="pycmd" if ANKI21 else "py.link"
     dbtn = """<td width="50" align="right" valign="top" class="stat"><br><button title="Shortcut key: _" id="defbut" onclick="%s(&quot;deferbtn&quot;);">Defer</button></td>"""%lnkcmd
     self.bottom.web.eval("""$("#middle")[0].outerHTML+='%s';"""%dbtn)
