@@ -2,7 +2,7 @@
 # Copyright: (C) 2018 Lovac42
 # Support: https://github.com/lovac42/SlackersDelight
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-# Version: 0.1.1
+# Version: 0.1.2
 
 
 # == User Config =========================================
@@ -68,10 +68,11 @@ class SlackersDelight:
             tooltip(_("Card Deferred."), period=1000)
 
 
-    def getDynId(self):
+    def getDynId(self, create=True):
         "Built or select Dyn deck"
         dyn=mw.col.decks.byName(_(DEFERRED_DECK_NAME))
         if not dyn: #Create filtered deck
+            if not create: return #test only
             did =  mw.col.decks.id(_(DEFERRED_DECK_NAME), 
                         type=anki.decks.defaultDynamicDeck)
             dyn = mw.col.decks.get(did)
@@ -125,7 +126,7 @@ def shortcutKeys(self, _old):
 #Add button on bottom bar
 def initWeb(self):
     card = mw.reviewer.card
-    if card.did==sd.getDynId(): return
+    if card.did==sd.getDynId(False): return
     lnkcmd="pycmd" if ANKI21 else "py.link"
     dbtn = """<td width="50" align="right" valign="top" class="stat"><br><button title="Shortcut key: _" id="defbut" onclick="%s(&quot;deferbtn&quot;);">Defer</button></td>"""%lnkcmd
     self.bottom.web.eval("""$("#middle")[0].outerHTML+='%s';"""%dbtn)
