@@ -114,7 +114,8 @@ def desc(self, deck, _old):
 def keyHandler(self, evt, _old):
     if unicode(evt.text()) == HOTKEY:
         sd.defer()
-    else: _old(self, evt)
+    else:
+        return _old(self, evt)
 
 #Handing keybinds Anki2.1
 def shortcutKeys(self, _old): 
@@ -133,8 +134,10 @@ def initWeb(self):
 
 #handles callback from button
 def linkHandler(self, url, _old):
-    if url == "deferbtn": sd.defer()
-    else: _old(self, url)
+    if url == "deferbtn":
+        sd.defer()
+    else:
+        return _old(self, url)
 
 
 #For V1 Scheduler:
