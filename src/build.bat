@@ -3,7 +3,7 @@ set ZIP=C:\PROGRA~1\7-Zip\7z.exe a -tzip -y -r
 set REPO=slackers_delight
 set NAME=slackers_delight
 set PACKID=880824023
-set VERSION=0.1.2
+set VERSION=0.2.0
 
 
 quick_manifest.exe "%NAME%" "%PACKID%" >%REPO%\manifest.json
