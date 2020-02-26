@@ -4,4 +4,4 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 
-from . import main
+import slackers_delight

@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
-# Copyright: (C) 2018 Lovac42
+# Copyright: (C) 2018-2020 Lovac42
 # Support: https://github.com/lovac42/SlackersDelight
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-# Version: 0.1.2
 
 
 # == User Config =========================================
 
-HOTKEY = "_" #Shift + Bury
-
-#Warning: Abuse addiction, disable and use menu
-ADD_DEFER_BUTTON = True
+# Update Note: Some settings has been moved to
+# addon manager's configuration settings.
 
 DEFERRED_DECK_NAME = "~Slackers Postponed Delights~"
 
@@ -26,9 +23,12 @@ from aqt.reviewer import Reviewer
 from anki.hooks import addHook, wrap
 from anki.utils import intTime, ids2str
 from aqt.utils import showWarning, showInfo, tooltip
+from anki.lang import _
+
 from anki import version
 ANKI21 = version.startswith("2.1.")
 
+from .config import Config
 
 DEFERRED_DECK_DESC = """
 <p><i>This is a deck full of deferred
@@ -40,6 +40,11 @@ when the empty button is clicked.<br>
 not a problem on the V2 Scheduler.)</i></p><br>"""
 
 
+
+ADDON_NAME = "SlackersDelight"
+conf = Config(ADDON_NAME)
+
+
 class SlackersDelight:
     def __init__(self):
         self.timeId=intTime()%100000
@@ -47,8 +52,9 @@ class SlackersDelight:
 
 
     def showContextMenu(self, r, m):
+        hk=conf.get("hotkey","_")
         a=m.addAction("Defer")
-        a.setShortcut(QKeySequence(HOTKEY))
+        a.setShortcut(QKeySequence(hk))
         a.triggered.connect(self.defer)
 
 
@@ -112,7 +118,7 @@ def desc(self, deck, _old):
 
 #Handing keybinds Anki2.0
 def keyHandler(self, evt, _old):
-    if unicode(evt.text()) == HOTKEY:
+    if unicode(evt.text()) == conf.get("hotkey","_"):
         sd.defer()
     else:
         return _old(self, evt)
@@ -120,17 +126,18 @@ def keyHandler(self, evt, _old):
 #Handing keybinds Anki2.1
 def shortcutKeys(self, _old): 
     ret=_old(self)
-    ret.append((HOTKEY, sd.defer))
+    ret.append((conf.get("hotkey","_"), sd.defer))
     return ret
 
 
 #Add button on bottom bar
 def initWeb(self):
-    card = mw.reviewer.card
-    if card.did==sd.getDynId(False): return
-    lnkcmd="pycmd" if ANKI21 else "py.link"
-    dbtn = """<td width="50" align="right" valign="top" class="stat"><br><button title="Shortcut key: _" id="defbut" onclick="%s(&quot;deferbtn&quot;);">Defer</button></td>"""%lnkcmd
-    self.bottom.web.eval("""$("#middle")[0].outerHTML+='%s';"""%dbtn)
+    if conf.get("show_defer_button",True):
+        card = mw.reviewer.card
+        if card.did==sd.getDynId(False): return
+        lnkcmd="pycmd" if ANKI21 else "py.link"
+        dbtn = """<td width="50" align="right" valign="top" class="stat"><br><button title="Shortcut key: _" id="defbut" onclick="%s(&quot;deferbtn&quot;);">Defer</button></td>"""%lnkcmd
+        self.bottom.web.eval("""$("#middle")[0].outerHTML+='%s';"""%dbtn)
 
 #handles callback from button
 def linkHandler(self, url, _old):
@@ -192,9 +199,9 @@ def sd_onDeckConf(self, deck=None, _old=None):
     return _old(self, deck)
 
 
-if ADD_DEFER_BUTTON:
-    Reviewer._initWeb = wrap(Reviewer._initWeb, initWeb, 'after')
-    Reviewer._linkHandler = wrap(Reviewer._linkHandler, linkHandler, 'around')
+
+Reviewer._initWeb = wrap(Reviewer._initWeb, initWeb, 'after')
+Reviewer._linkHandler = wrap(Reviewer._linkHandler, linkHandler, 'around')
 
 aqt.main.AnkiQt.onDeckConf = wrap(aqt.main.AnkiQt.onDeckConf, sd_onDeckConf, 'around')
 aqt.overview.Overview._desc = wrap(aqt.overview.Overview._desc, desc, 'around')
