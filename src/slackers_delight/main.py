@@ -209,10 +209,15 @@ anki.sched.Scheduler.emptyDyn = wrap(anki.sched.Scheduler.emptyDyn, sd_emptyDyn,
 anki.sched.Scheduler.remFromDyn = wrap(anki.sched.Scheduler.remFromDyn, sd_remFromDyn, 'around')
 anki.sched.Scheduler.rebuildDyn = wrap(anki.sched.Scheduler.rebuildDyn, sd_rebuildDyn, 'around')
 
-if ANKI21:
+try:
+    # 2.1 and ccbc
     import anki.schedv2
     anki.schedv2.Scheduler.rebuildDyn = wrap(anki.schedv2.Scheduler.rebuildDyn, sd_rebuildDyn, 'around')
-    Reviewer._shortcutKeys = wrap(Reviewer._shortcutKeys, shortcutKeys, 'around')
-else:
-    Reviewer._keyHandler = wrap(Reviewer._keyHandler, keyHandler, 'around')
 
+    unicode = str
+
+    # 2.1 only
+    Reviewer._shortcutKeys = wrap(Reviewer._shortcutKeys, shortcutKeys, 'around')
+except:
+    # 2.0 and ccbc
+    Reviewer._keyHandler = wrap(Reviewer._keyHandler, keyHandler, 'around')
